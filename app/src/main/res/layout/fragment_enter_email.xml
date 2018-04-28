@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layoutDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/iran_sans"
+            android:gravity="center"
+            android:text="@string/you_should_register"
+            android:textSize="12sp" />
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/iran_sans"
+            android:gravity="center"
+            android:text="@string/enter_email"
+            android:textColor="@color/blue"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:fontFamily="@font/iran_sans"
+                android:gravity="left"
+                android:inputType="textEmailAddress"
+                android:layoutDirection="ltr"
+                android:singleLine="true"
+                android:textSize="19sp"
+
+                />
+
+
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/btn_next0"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/btn_success"
+            android:fontFamily="@font/iran_sans"
+            android:text="@string/next"
+            android:textColor="@android:color/white" />
+
+
+        <include layout="@layout/loading" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_internal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center"
+        android:fontFamily="@font/iran_sans"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="اگر داخل کشور هستید ،اینجا را لمس کنید"
+        android:textColor="@color/blue"
+        android:textSize="12sp" />
+
+</RelativeLayout>

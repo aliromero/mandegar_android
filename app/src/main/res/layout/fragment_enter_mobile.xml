@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layoutDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/iran_sans"
+            android:gravity="center"
+            android:text="@string/you_should_register"
+            android:textSize="12sp" />
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/iran_sans"
+            android:gravity="center"
+            android:text="@string/enter_phone"
+            android:textColor="@color/blue"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <EditText
+                android:id="@+id/et_mobile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:fontFamily="@font/iran_sans"
+                android:gravity="left"
+                android:hint="@string/example_phone_number"
+                android:inputType="phone"
+                android:layoutDirection="ltr"
+                android:singleLine="true"
+                android:textSize="19sp"
+
+                />
+
+            <android.support.design.widget.CoordinatorLayout
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+
+                >
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom">
+
+
+                    <EditText
+                        android:id="@+id/et_pre_mobile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/iran_sans"
+                        android:inputType="none"
+                        android:paddingLeft="15dp"
+                        android:singleLine="true"
+                        android:text="98"
+                        android:textSize="19sp"
+
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|left"
+                        android:layout_marginBottom="15dp"
+                        android:layout_marginLeft="5dp"
+                        android:text="+"
+                        android:textColor="@color/black"
+                        android:textSize="20sp" />
+
+
+                </FrameLayout>
+            </android.support.design.widget.CoordinatorLayout>
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/btn_next1"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/btn_success"
+            android:fontFamily="@font/iran_sans"
+            android:text="@string/next"
+            android:textColor="@android:color/white" />
+
+
+        <include layout="@layout/loading" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_external"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center"
+        android:fontFamily="@font/iran_sans"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="اگر از خارج کشور هستید ،اینجا را لمس کنید"
+        android:textColor="@color/blue"
+        android:textSize="12sp" />
+
+</RelativeLayout>

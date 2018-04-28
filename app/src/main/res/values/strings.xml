@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">TestApp</string>
+    <string name="my_app_name">مرجع معماری ماندگار</string>
+    <string name="tab_1">صفحه اصلی</string>
+    <string name="tab_2">آموزش</string>
+    <string name="tab_3">فروشگاه</string>
+    <string name="tab_4">پشتیبانی</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="show_profile">مشاهده پروفایل</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="openDrawer">open_drawer</string>
+    <string name="closeDrawer">close_drawer</string>
+
+    <!-- Navigation Drawer menu labels -->
+    <string name="nav_account">وضعیت اشتراک</string>
+    <string name="nav_gallery">گالری آفلاین</string>
+    <string name="nav_up_render">آپلود رندرهای شما</string>
+    <string name="nav_support">ارتباط با پشتیبان</string>
+    <string name="nav_about_us">درباره ما</string>
+    <string name="nav_job">فرصت شغلی</string>
+    <string name="nav_logout">خروج از حساب</string>
+    <string name="next">مرحله بعدی</string>
+    <string name="enter_phone">برای دریافت کد فعالسازی ، شماره موبایل خود را وارد کنید</string>
+    <string name="enter_email">برای دریافت کد فعالسازی ، ایمیل خود را وارد کنید</string>
+    <string name="you_should_register">برای ورود به برنامه ، وارد حساب خود شوید</string>
+    <string name="register_complete">تکمیل عضویت</string>
+    <string name="password">رمز عبور</string>
+    <string name="email">ایمیل</string>
+    <string name="your_name">نام شما</string>
+    <string name="username">نام کاربری</string>
+    <string name="please_complete_profile">برای تکمیل فرایند عضویت ، لطفا اطلاعات خود را کامل کنید</string>
+    <string name="your_pic">تصویر شما</string>
+    <string name="example_phone_number">- - - - - - - - - -</string>
+
+
+    <string name="title_activity_welcome">Home Screen</string>
+    <string name="next_en">NEXT</string>
+    <string name="skip">SKIP</string>
+    <string name="start">GOT IT</string>
+    <string name="slide_1_title">Hello Food!</string>
+    <string name="slide_1_desc">The easiest way to order food from your favourite restaurant!</string>
+
+    <string name="slide_2_title">Movie Tickets</string>
+    <string name="slide_2_desc">Book movie tickets for your family and friends!</string>
+
+    <string name="slide_3_title">Great Discounts</string>
+    <string name="slide_3_desc">Best discounts on every single service we offer!</string>
+
+    <string name="slide_4_title">World Travel</string>
+    <string name="slide_4_desc">Book tickets of any transportation and travel the world!</string>
+
+    <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
+    <string name="play_again">Play Again</string>
+
+
+
+</resources>

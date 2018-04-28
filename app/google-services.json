@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "573929438316",
+    "firebase_url": "https://vray3d-1508925741565.firebaseio.com",
+    "project_id": "vray3d-1508925741565",
+    "storage_bucket": "vray3d-1508925741565.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573929438316:android:24b26e7040114f78",
+        "android_client_info": {
+          "package_name": "co.romero.mandegar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573929438316-e1ttp9e3fv6jdml4e93bflso9jk1n2s4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgyY85T0LT4MCqU-wVZ2NpGDX4RhUdMD8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

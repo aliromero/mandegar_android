@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_account"
+        android:title="@string/nav_account"
+        android:icon="@drawable/ic_user"
+       />
+
+    <item
+        android:id="@+id/nav_gallery"
+        android:icon="@drawable/ic_dl"
+        android:title="@string/nav_gallery" />
+
+    <item
+        android:id="@+id/nav_up_render"
+        android:icon="@drawable/ic_up"
+        android:title="@string/nav_up_render" />
+
+    <item
+        android:id="@+id/nav_support"
+        android:icon="@drawable/ic_support"
+        android:title="@string/nav_support" />
+
+    <item
+        android:id="@+id/nav_about_us"
+        android:icon="@drawable/ic_about"
+        android:title="@string/nav_about_us" />
+
+    <item
+        android:id="@+id/nav_job"
+        android:icon="@drawable/ic_job"
+        android:title="@string/nav_job" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/ic_exit_to_app_black_24dp"
+        android:title="@string/nav_logout" />
+
+
+</menu>

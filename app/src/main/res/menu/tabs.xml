@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:icon="@drawable/ic_home"
+        android:id="@+id/action_home"
+        android:title="@string/tab_1" />
+    <item
+        android:icon="@drawable/ic_exam"
+        android:id="@+id/action_tutorial"
+        android:title="@string/tab_2" />
+
+    <item android:id="@+id/empty" android:visible="false" android:title="" />
+
+
+    <item
+        android:icon="@drawable/ic_shop"
+        android:id="@+id/action_shop"
+        android:title="@string/tab_3" />
+
+
+    <item
+        android:icon="@drawable/ic_users"
+        android:id="@+id/action_support"
+        android:title="@string/tab_4" />
+
+</menu>
