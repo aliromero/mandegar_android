@@ -31,6 +31,7 @@ import android.telephony.TelephonyManager
 import kotlinx.android.synthetic.main.fragment_enter_code.*
 import java.util.*
 import android.content.BroadcastReceiver
+import android.provider.MediaStore
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.fragment_enter_password.view.*
@@ -38,9 +39,15 @@ import co.romero.mandegar.R.id.et_password
 import android.text.InputType
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.widget.Toast
 import co.romero.mandegar.activity.GroupsActivity
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.fragment_enter_password.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
+import java.io.IOException
 
 
 class SignUpFragment : Fragment() {
@@ -227,7 +234,6 @@ class SignUpFragment : Fragment() {
                             hideKeyboard(activity!!)
                             if (response.isExist_customer) {
                                 main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "1", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
-
                             } else {
                                 main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "0", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
                             }
@@ -268,13 +274,40 @@ class SignUpFragment : Fragment() {
 
     private fun showEnterPassword(view: View) {
 
-
         view.et_password.background.mutate().setColorFilter(resources.getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP)
-
         if (exist_customer == 1) {
+            view.tv_forget.visibility = View.VISIBLE
             view.tv_passInfo.text = "برای ورود ، رمز عبور خود را وارد کنید"
         } else {
+            view.tv_forget.visibility = View.GONE
             view.tv_passInfo.text = "برای ثبت نام ، یک رمز عبور وارد کنید"
+        }
+
+        view.tv_forget.setOnClickListener {
+            pb_loading.visibility = View.VISIBLE
+            endPoints!!.resetPass(utils!!.get_email(),object: RespoDataInterface {
+
+                override fun data(response: Respo) {
+                    pb_loading.visibility = View.GONE
+                    if (response.isStatus) {
+                        val dialog = utils!!.show_alert(context!!, "ارسال شد", "لینک نوسازی پسورد به ایمیلتان ارسال شد.")
+                        dialog.show()
+                        val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+                        dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+
+                    }
+                }
+
+                override fun status(msg: String?) {
+                    pb_loading.visibility = View.GONE
+                    if (msg!!.isNotEmpty()) {
+                        val dialog = utils!!.show_alert(context!!, "خطا", msg)
+                        dialog.show()
+                        val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+                        dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+                    }
+                }
+            })
         }
         var is_show = false
         view.btn_eye.setImageResource( R.drawable.ic_visibility_black_24dp)
@@ -295,6 +328,8 @@ class SignUpFragment : Fragment() {
 
 
 
+        view
+
         val main = activity as SignUpActivity
         view.btn_next03.setOnClickListener {
             pb_loading.visibility = View.VISIBLE
@@ -307,12 +342,13 @@ class SignUpFragment : Fragment() {
                         if (response.isStatus) {
                             hideKeyboard(activity!!)
                             utils!!.save_api_token(response.api_token)
-                            if (exist_customer == 1) {
-
-                                        startActivity(Intent(context, GroupsActivity::class.java))
-                                activity!!.finish()
-                            } else {
-                                main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
+                            when {
+                                response.customer.name.isNullOrEmpty() -> main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
+                                response.customer.image.isNullOrEmpty() -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
+                                else -> {
+                                    startActivity(Intent(context, GroupsActivity::class.java))
+                                    activity!!.finish()
+                                }
                             }
 
                             utils!!.setCustomerId(response.customerId.toString())
@@ -424,7 +460,16 @@ class SignUpFragment : Fragment() {
                     pb_loading.visibility = View.GONE
                     if (response.isStatus) {
                         hideKeyboard(activity!!)
-                        main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر")
+
+                        when {
+                            response.customer.image.isNullOrEmpty() -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
+                            else -> {
+                                startActivity(Intent(context, GroupsActivity::class.java))
+                                activity!!.finish()
+                            }
+                        }
+
+
                         utils!!.set_name(view.et_name.text.toString())
                     }
                 }
@@ -517,14 +562,41 @@ class SignUpFragment : Fragment() {
 
         when (requestCode) {
             1001 -> if (null != data) {
-                val imageUri = data.data
-                Glide.with(context).load(imageUri)
-                //Do whatever that you desire here. or leave this blank
+                val uri = data.data
+
+                try {
+                    val bitmap = MediaStore.Images.Media.getBitmap(context!!.contentResolver, uri)
+                     val file = utils!!.save(context!!,utils!!.scaleBitmap(bitmap, 500, 500))
+
+                    Glide.with(context).load(file).into(view!!.change_pic)
+                    endPoints!!.checkPic(file,utils!!.getCustomerId(),object: RespoDataInterface {
+                        override fun data(response: Respo) {
+
+                        }
+
+                        override fun status(msg: String?) {
+
+                        }
+                    })
+
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
+
+
+
+
+
 
             }
             else -> {
             }
         }
     }
+
+
+
+
 
 }

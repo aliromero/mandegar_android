@@ -3,11 +3,13 @@ package co.romero.mandegar.Util
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -18,8 +20,12 @@ import co.romero.mandegar.Constant.Constants
 import co.romero.mandegar.Constant.Constants.*
 import co.romero.mandegar.R
 import co.romero.mandegar.SecurePreferences
+import java.io.File
+import java.io.FileOutputStream
 
 import java.lang.ref.WeakReference
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class Utils protected constructor(private val context: Context) {
@@ -128,6 +134,55 @@ class Utils protected constructor(private val context: Context) {
             prefs_secure.getString("name")
         else ""
     }
+
+
+    fun save(context: Context, bitmap: Bitmap): File {
+        val timeStamp = SimpleDateFormat("ddMMyy_HHmms").format(Date())
+        val fname = "Image-$timeStamp.jpg"
+        val file = File(context.filesDir.absolutePath, fname)
+        //        File appDirectory = new File(Environment.getExternalStorageDirectory() + "/myfile");
+        //        appDirectory.mkdirs();
+        //        File file = new File (Environment.getExternalStorageDirectory() + "/myfile", fname);
+        if (file.exists()) file.delete()
+        try {
+            val out = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 65, out)
+            out.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return file
+    }
+
+
+    fun scaleBitmap(bm: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+        var bm = bm
+        var width = bm.width
+        var height = bm.height
+
+        Log.v("Pictures", "Width and height are $width--$height")
+
+        if (width > height) {
+            // landscape
+            val ratio = width.toFloat() / maxWidth
+            width = maxWidth
+            height = (height / ratio).toInt()
+        } else if (height > width) {
+            // portrait
+            val ratio = height.toFloat() / maxHeight
+            height = maxHeight
+            width = (width / ratio).toInt()
+        } else {
+            // square
+            height = maxHeight
+            width = maxWidth
+        }
+        bm = Bitmap.createScaledBitmap(bm, width, height, true)
+        return bm
+    }
+
+
 
 
     fun show_dialog(context: Context?, view: View): AlertDialog {

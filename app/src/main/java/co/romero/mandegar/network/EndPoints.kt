@@ -210,6 +210,38 @@ class EndPoints protected constructor(private val context: Context) {
 
     }
 
+    fun resetPass(email: String, respoDataInterface: RespoDataInterface) {
+
+        if (!App.getInstance().isDataConnected) {
+            respoDataInterface.status(" . لطفا اتصال اینترنت خود را بررسی کنید و مجدد تلاش کنید.")
+        } else {
+            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress())
+
+            val task = CustomerResetEmailRequest(email)
+            val call = shopInterface.resetEmail(task)
+            call.enqueue(object : Callback<Respo> {
+                override fun onResponse(call: Call<Respo>, response: retrofit2.Response<Respo>) {
+                    if (response.isSuccessful) {
+                        if (response.body()!!.isStatus) {
+                            respoDataInterface.data(response.body()!!)
+                        } else {
+                            respoDataInterface.status(TextUtils.join("\r\n", response.body()?.error))
+                        }
+
+
+                    } else {
+                        respoDataInterface.status("error")
+                    }
+                }
+
+                override fun onFailure(call: Call<Respo>, t: Throwable) {
+                    respoDataInterface.status(t.message)
+                }
+            })
+        }
+
+    }
+
     fun checkCode(code: Int, email: String, mobile: String, reg_id: String, respoDataInterface: RespoDataInterface) {
 
         if (!App.getInstance().isDataConnected) {
