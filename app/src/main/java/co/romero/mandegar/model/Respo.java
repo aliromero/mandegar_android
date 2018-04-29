@@ -22,6 +22,8 @@ public class Respo {
     private String title,name,src;
     private String[] error;
     public String country,city,api_token;
+    public Customer customer;
+
     public Respo()
     {
 

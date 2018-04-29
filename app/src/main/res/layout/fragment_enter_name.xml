@@ -73,6 +73,7 @@
             android:textColor="@android:color/white"
              />
 
+        <include layout="@layout/loading" />
     </LinearLayout>
     </ScrollView>
 </RelativeLayout>

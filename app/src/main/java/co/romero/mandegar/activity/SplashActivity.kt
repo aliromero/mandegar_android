@@ -63,7 +63,7 @@ class SplashActivity : Activity() {
                     // do nothing
                 } finally {
 
-                    mainIntent = if (Utils.getInstance(this@SplashActivity)!!.getCustomerId() != "") {
+                    mainIntent = if (Utils.getInstance(this@SplashActivity)!!.get_api_token() != "") {
                         Intent(applicationContext, GroupsActivity::class.java)
                     } else {
                         Intent(applicationContext, SignUpActivity::class.java)

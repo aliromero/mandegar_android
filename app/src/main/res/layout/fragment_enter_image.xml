@@ -51,6 +51,7 @@
 
 
                     <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/change_pic"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center"

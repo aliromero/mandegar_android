@@ -39,6 +39,7 @@ import android.text.InputType
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import co.romero.mandegar.activity.GroupsActivity
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.fragment_enter_password.*
 
 
@@ -222,12 +223,13 @@ class SignUpFragment : Fragment() {
                         pb_loading.visibility = View.GONE
                         if (response.isStatus) {
                             utils!!.set_mobile("")
+                            utils!!.setCustomerId(response.customer.id)
                             hideKeyboard(activity!!)
                             if (response.isExist_customer) {
                                 main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "1", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
 
                             } else {
-                                main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "1", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
+                                main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "0", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
                             }
 //                            if (response.isExist_customer) {
 //                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "1", "type", "email"), "مرحله 2/2 - وارد کردن کد تایید")
@@ -266,8 +268,14 @@ class SignUpFragment : Fragment() {
 
     private fun showEnterPassword(view: View) {
 
+
         view.et_password.background.mutate().setColorFilter(resources.getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP)
 
+        if (exist_customer == 1) {
+            view.tv_passInfo.text = "برای ورود ، رمز عبور خود را وارد کنید"
+        } else {
+            view.tv_passInfo.text = "برای ثبت نام ، یک رمز عبور وارد کنید"
+        }
         var is_show = false
         view.btn_eye.setImageResource( R.drawable.ic_visibility_black_24dp)
         view.btn_eye.setOnClickListener {
@@ -293,7 +301,7 @@ class SignUpFragment : Fragment() {
 
             if (view.et_password.length() > 3) {
 
-                endPoints!!.checkPass(utils!!.get_email(),view.et_password.text.toString(),utils!!.getRegId(),object: RespoDataInterface {
+                endPoints!!.checkPass(utils!!.get_email(),view.et_password.text.toString(),utils!!.getRegId(),utils!!.getCustomerId(),object: RespoDataInterface {
                     override fun data(response: Respo) {
                         pb_loading.visibility = View.GONE
                         if (response.isStatus) {
@@ -301,7 +309,7 @@ class SignUpFragment : Fragment() {
                             utils!!.save_api_token(response.api_token)
                             if (exist_customer == 1) {
 
-                                startActivity(Intent(context, GroupsActivity::class.java))
+                                        startActivity(Intent(context, GroupsActivity::class.java))
                                 activity!!.finish()
                             } else {
                                 main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
@@ -410,13 +418,41 @@ class SignUpFragment : Fragment() {
         view.et_name.background.mutate().setColorFilter(resources.getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP)
         val main = activity as SignUpActivity
         view.btn_next3.setOnClickListener {
-            hideKeyboard(activity!!)
-            main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر")
-            utils!!.set_name(view.et_name.text.toString())
+
+            endPoints!!.checkName(view.et_name.text.toString(),utils!!.getCustomerId(),object: RespoDataInterface {
+                override fun data(response: Respo) {
+                    pb_loading.visibility = View.GONE
+                    if (response.isStatus) {
+                        hideKeyboard(activity!!)
+                        main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر")
+                        utils!!.set_name(view.et_name.text.toString())
+                    }
+                }
+
+                override fun status(msg: String?) {
+                    pb_loading.visibility = View.GONE
+                    val dialog = utils!!.show_alert(context!!, "خطا", msg!!)
+                    dialog.show()
+                    val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+                    dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+                }
+            })
+
         }
     }
 
     private fun showEnterImage(view: View) {
+
+        view.change_pic.setOnClickListener {
+            val galleryIntent = Intent(
+                    Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(galleryIntent, 1001)
+        }
+
+
+
+
         view.btn_next4.setOnClickListener {
             hideKeyboard(activity!!)
             startActivity(Intent(context, MainActivity::class.java))
@@ -473,6 +509,21 @@ class SignUpFragment : Fragment() {
 
             fragment.arguments = b
             return fragment
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            1001 -> if (null != data) {
+                val imageUri = data.data
+                Glide.with(context).load(imageUri)
+                //Do whatever that you desire here. or leave this blank
+
+            }
+            else -> {
+            }
         }
     }
 

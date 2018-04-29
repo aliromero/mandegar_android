@@ -83,7 +83,9 @@ class Utils protected constructor(private val context: Context) {
     }
 
     fun get_api_token():String{
-        return prefs_secure.getString("api_token");
+        return if (prefs_secure.getString("api_token") != null)
+            prefs_secure.getString("api_token")
+        else ""
     }
     fun set_email(value: String? = "") {
         if (value == null || value == "")

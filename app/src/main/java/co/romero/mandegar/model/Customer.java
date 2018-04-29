@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by Lincoln on 07/01/16.
  */
 public class Customer implements Serializable {
-    private String id, name, mobile;
+    private String id, name, mobile, email;
 
 
     public Customer() {
@@ -42,5 +42,13 @@ public class Customer implements Serializable {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

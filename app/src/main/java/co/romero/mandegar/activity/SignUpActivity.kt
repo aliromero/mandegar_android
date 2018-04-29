@@ -89,6 +89,9 @@ class SignUpActivity : AppCompatActivity() {
             if (enterImageFragment.isAdded) {
                 fragmentTransaction.hide(enterImageFragment)
             }
+            if (enterPasswordFragment.isAdded) {
+                fragmentTransaction.hide(enterPasswordFragment)
+            }
 
             if (newFragment.isAdded) {
                 fragmentTransaction.show(newFragment)
