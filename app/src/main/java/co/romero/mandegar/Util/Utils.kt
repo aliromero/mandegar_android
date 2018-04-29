@@ -74,6 +74,17 @@ class Utils protected constructor(private val context: Context) {
         return dialog
     }
 
+
+    fun save_api_token(api_token:String) {
+        if (api_token == "")
+            prefs_secure.removeValue("api_token")
+        else
+        prefs_secure.put("api_token", api_token)
+    }
+
+    fun get_api_token():String{
+        return prefs_secure.getString("api_token");
+    }
     fun set_email(value: String? = "") {
         if (value == null || value == "")
             prefs_secure.removeValue("email")

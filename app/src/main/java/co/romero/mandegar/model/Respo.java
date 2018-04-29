@@ -21,7 +21,7 @@ public class Respo {
     private boolean exist_customer;
     private String title,name,src;
     private String[] error;
-    public String country,city;
+    public String country,city,api_token;
     public Respo()
     {
 

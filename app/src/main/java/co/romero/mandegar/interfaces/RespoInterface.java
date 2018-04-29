@@ -4,6 +4,7 @@ import co.romero.mandegar.model.Respo;
 import co.romero.mandegar.request.CustomerCheckCodeRequest;
 import co.romero.mandegar.request.CustomerEmailRequest;
 import co.romero.mandegar.request.CustomerLoginOrRegisterRequest;
+import co.romero.mandegar.request.CustomerPassRequest;
 import co.romero.mandegar.request.CustomerRequest;
 
 import retrofit2.Call;
@@ -18,6 +19,12 @@ public interface RespoInterface {
 
     @POST("checkEmail")
     Call<Respo> checkEmail(@Body CustomerEmailRequest request);
+
+
+    @POST("checkPassword")
+    Call<Respo> checkPassword(@Body CustomerPassRequest request);
+
+
 
     @GET("json")
     Call<Respo> checkCountry();

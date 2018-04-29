@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.pager_home.view.*
 import co.romero.mandegar.adapter.BooksAdapter
 import android.widget.GridView
+import android.widget.Toast
 import co.romero.mandegar.adapter.SimpleDemoAdapter
 import kotlinx.android.synthetic.main.fragment_category.view.*
 import org.zakariya.stickyheaders.SectioningAdapter
@@ -41,6 +42,7 @@ class HomeFragment : Fragment() {
             index = it.getString("index")
             tab = it.getInt("tab")
             utils = Utils.getInstance(context)
+
 
         }
     }

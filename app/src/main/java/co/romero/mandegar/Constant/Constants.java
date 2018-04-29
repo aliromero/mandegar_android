@@ -5,7 +5,7 @@ public class Constants {
 
 
     public static final String POROTOCOL = "http://";
-    public static final String DOMAIN = "192.168.1.110/";
+    public static final String DOMAIN = "api.3dvray.org/";
     public static final String FOLDER = "mandegar/";
     public static final String API = "api/v1/";
     public static final String IRANS_SANS = "fonts/iran_sans.ttf";

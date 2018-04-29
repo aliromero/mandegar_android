@@ -31,8 +31,15 @@ import android.telephony.TelephonyManager
 import kotlinx.android.synthetic.main.fragment_enter_code.*
 import java.util.*
 import android.content.BroadcastReceiver
-
-
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.res.ResourcesCompat
+import kotlinx.android.synthetic.main.fragment_enter_password.view.*
+import co.romero.mandegar.R.id.et_password
+import android.text.InputType
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import co.romero.mandegar.activity.GroupsActivity
+import kotlinx.android.synthetic.main.fragment_enter_password.*
 
 
 class SignUpFragment : Fragment() {
@@ -87,6 +94,12 @@ class SignUpFragment : Fragment() {
                 showEnterImage(view)
                 view
             }
+
+            "enter_password" -> {
+                view = inflater.inflate(R.layout.fragment_enter_password, container, false)
+                showEnterPassword(view)
+                view
+            }
             else -> null
 
         }
@@ -102,7 +115,7 @@ class SignUpFragment : Fragment() {
             pb_loading.visibility = View.VISIBLE
             val mobile_number = "0" + view.et_mobile.text.toString()
             if (isMobileValid(mobile_number)) {
-                endPoints!!.checkMobile(mobile_number,utils!!.getRegId(), object : RespoDataInterface {
+                endPoints!!.checkMobile(mobile_number, utils!!.getRegId(), object : RespoDataInterface {
                     override fun data(response: Respo) {
                         pb_loading.visibility = View.GONE
                         if (response.isStatus) {
@@ -110,10 +123,17 @@ class SignUpFragment : Fragment() {
                             utils!!.set_mobile(view.et_mobile.text.toString())
                             hideKeyboard(activity!!)
                             if (response.isExist_customer) {
-                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "1","type","mobile"), "مرحله 2/2 - وارد کردن کد تایید")
+                                startActivity(Intent(context, MainActivity::class.java))
+                                activity!!.finish()
                             } else {
-                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "0","type","mobile"), "مرحله 2/4 - وارد کردن کد تایید")
+                                main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
                             }
+
+//                            if (response.isExist_customer) {
+//                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "1","type","mobile"), "مرحله 2/2 - وارد کردن کد تایید")
+//                            } else {
+//                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "0","type","mobile"), "مرحله 2/4 - وارد کردن کد تایید")
+//                            }
 
 
                         }
@@ -140,45 +160,50 @@ class SignUpFragment : Fragment() {
         }
 
         view.tv_external.setOnClickListener {
-            pb_loading.visibility = View.VISIBLE
 
-            if (getUserCountry(context!!) == null) {
-                endPoints!!.checkCountry(object : RespoDataInterface {
-
-                    override fun data(response: Respo) {
-                        pb_loading.visibility = View.GONE
-                        if (response.country != "" && response.country != "Iran") {
-                            main.displayFragment(main.getFragment(main.enterEmailFragment, "index", "none", "enter_email", "2"))
-
-                        } else {
-                            val dialog = utils!!.show_alert(context!!, "خطا", "شما کاربر خارجی نیستید")
-                            dialog.show()
-                            val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
-                            dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
-                        }
-                    }
-
-                    override fun status(msg: String?) {
-                        pb_loading.visibility = View.GONE
-                        val dialog = utils!!.show_alert(context!!, "خطا", msg!!)
-                        dialog.show()
-                        val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
-                        dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
-                    }
-                })
-
-
-            } else {
-                pb_loading.visibility = View.GONE
-                if (getUserCountry(context!!) == "ir") {
-                    val dialog = utils!!.show_alert(context!!, "خطا", "شما کاربر خارجی نیستید")
-                    dialog.show()
-                    val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
-                    dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
-                } else {
-                    main.displayFragment(main.getFragment(main.enterEmailFragment, "index", "none", "enter_email", "2"))
-                }
-            }
+            val dialog = utils!!.show_alert(context!!, "خطا", "به زودی این قسمت راه اندازی خواهد شد")
+            dialog.show()
+            val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+            dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+//            pb_loading.visibility = View.VISIBLE
+//
+//            if (getUserCountry(context!!) == null) {
+//                endPoints!!.checkCountry(object : RespoDataInterface {
+//
+//                    override fun data(response: Respo) {
+//                        pb_loading.visibility = View.GONE
+//                        if (response.country != "" && response.country != "Iran") {
+//                            main.displayFragment(main.getFragment(main.enterEmailFragment, "index", "none", "enter_email", "2"))
+//
+//                        } else {
+//                            val dialog = utils!!.show_alert(context!!, "خطا", "شما کاربر خارجی نیستید")
+//                            dialog.show()
+//                            val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+//                            dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+//                        }
+//                    }
+//
+//                    override fun status(msg: String?) {
+//                        pb_loading.visibility = View.GONE
+//                        val dialog = utils!!.show_alert(context!!, "خطا", msg!!)
+//                        dialog.show()
+//                        val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+//                        dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+//                    }
+//                })
+//
+//
+//            } else {
+//                pb_loading.visibility = View.GONE
+//                if (getUserCountry(context!!) == "ir") {
+//                    val dialog = utils!!.show_alert(context!!, "خطا", "شما کاربر خارجی نیستید")
+//                    dialog.show()
+//                    val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+//                    dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+//                } else {
+//                    main.displayFragment(main.getFragment(main.enterEmailFragment, "index", "none", "enter_email", "2"))
+//                }
+//            }
         }
     }
 
@@ -192,19 +217,25 @@ class SignUpFragment : Fragment() {
             pb_loading.visibility = View.VISIBLE
 
             if (isEmailValid(view.et_email.text.toString())) {
-                endPoints!!.checkMail(view.et_email.text.toString(), getUserCountry(context!!)!!,utils!!.getRegId(), object : RespoDataInterface {
+                endPoints!!.checkMail(view.et_email.text.toString(), getUserCountry(context!!)!!, utils!!.getRegId(), object : RespoDataInterface {
                     override fun data(response: Respo) {
                         pb_loading.visibility = View.GONE
                         if (response.isStatus) {
                             utils!!.set_mobile("")
                             hideKeyboard(activity!!)
                             if (response.isExist_customer) {
-                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "1", "type", "email"), "مرحله 2/2 - وارد کردن کد تایید")
+                                main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "1", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
 
                             } else {
-                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "0", "type", "email"), "مرحله 2/4 - وارد کردن کد تایید")
-
+                                main.displayFragment(main.getFragment(main.enterPasswordFragment, "index", "exist_customer", "enter_password", "1", "type", "email"), "مرحله 2/2 - وارد کردن رمز عبور")
                             }
+//                            if (response.isExist_customer) {
+//                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "1", "type", "email"), "مرحله 2/2 - وارد کردن کد تایید")
+//
+//                            } else {
+//                                main.displayFragment(main.getFragment(main.enterCodeFragment, "index", "exist_customer", "enter_code", "0", "type", "email"), "مرحله 2/4 - وارد کردن کد تایید")
+//
+//                            }
                             utils!!.set_email(view.et_email.text.toString())
                         }
                     }
@@ -222,6 +253,76 @@ class SignUpFragment : Fragment() {
             } else {
                 pb_loading.visibility = View.GONE
                 val dialog = utils!!.show_alert(context!!, "خطا در اطلاعات ارسالی", "ایمیل خود را درست وارد کنید")
+                dialog.show()
+                val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+                dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+            }
+
+        }
+
+
+    }
+
+
+    private fun showEnterPassword(view: View) {
+
+        view.et_password.background.mutate().setColorFilter(resources.getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP)
+
+        var is_show = false
+        view.btn_eye.setImageResource( R.drawable.ic_visibility_black_24dp)
+        view.btn_eye.setOnClickListener {
+            if (!is_show) {
+                view.btn_eye.setImageResource( R.drawable.ic_visibility_off_black_24dp)
+                view.et_password.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                is_show = true
+
+            } else {
+                view.btn_eye.setImageResource( R.drawable.ic_visibility_black_24dp)
+                view.et_password.transformationMethod = PasswordTransformationMethod.getInstance()
+                is_show = false
+
+            }
+
+        }
+
+
+
+        val main = activity as SignUpActivity
+        view.btn_next03.setOnClickListener {
+            pb_loading.visibility = View.VISIBLE
+
+            if (view.et_password.length() > 3) {
+
+                endPoints!!.checkPass(utils!!.get_email(),view.et_password.text.toString(),utils!!.getRegId(),object: RespoDataInterface {
+                    override fun data(response: Respo) {
+                        pb_loading.visibility = View.GONE
+                        if (response.isStatus) {
+                            hideKeyboard(activity!!)
+                            utils!!.save_api_token(response.api_token)
+                            if (exist_customer == 1) {
+
+                                startActivity(Intent(context, GroupsActivity::class.java))
+                                activity!!.finish()
+                            } else {
+                                main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
+                            }
+
+                            utils!!.setCustomerId(response.customerId.toString())
+                        }
+                    }
+
+                    override fun status(msg: String?) {
+                        pb_loading.visibility = View.GONE
+                        val dialog = utils!!.show_alert(context!!, "خطا", msg!!)
+                        dialog.show()
+                        val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
+                        dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+                    }
+                })
+
+            } else {
+                pb_loading.visibility = View.GONE
+                val dialog = utils!!.show_alert(context!!, "خطا در اطلاعات ارسالی", "پسورد انتخابی باید بیش از 3 عدد باشد")
                 dialog.show()
                 val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
                 dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
@@ -275,17 +376,16 @@ class SignUpFragment : Fragment() {
         view.et_code.background.mutate().setColorFilter(resources.getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP)
         view.btn_next2.setOnClickListener {
             pb_loading.visibility = View.VISIBLE
-            endPoints!!.checkCode(et_code.text.toString().toInt(), utils!!.get_email(), utils!!.get_mobile(),utils!!.getRegId(),object: RespoDataInterface {
+            endPoints!!.checkCode(et_code.text.toString().toInt(), utils!!.get_email(), utils!!.get_mobile(), utils!!.getRegId(), object : RespoDataInterface {
                 override fun data(response: Respo) {
                     pb_loading.visibility = View.GONE
                     if (response.isStatus) {
                         hideKeyboard(activity!!)
                         if (exist_customer == 1) {
 
-                            startActivity(Intent(context,MainActivity::class.java))
+                            startActivity(Intent(context, MainActivity::class.java))
                             activity!!.finish()
-                        }
-                        else {
+                        } else {
                             main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
                         }
 
@@ -295,13 +395,12 @@ class SignUpFragment : Fragment() {
 
                 override fun status(msg: String?) {
                     pb_loading.visibility = View.GONE
-                    val dialog = utils!!.show_alert(context!!, "خطا",msg!!)
+                    val dialog = utils!!.show_alert(context!!, "خطا", msg!!)
                     dialog.show()
                     val width = (context!!.resources.displayMetrics.widthPixels * 0.85).toInt()
                     dialog.window!!.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
                 }
             })
-
 
 
         }
@@ -365,7 +464,7 @@ class SignUpFragment : Fragment() {
     companion object {
 
 
-        fun newInstance(index: String,val2:Int?=0,val3:String?=""): SignUpFragment {
+        fun newInstance(index: String, val2: Int? = 0, val3: String? = ""): SignUpFragment {
             val fragment = SignUpFragment()
             val b = Bundle()
             b.putString("index", index)

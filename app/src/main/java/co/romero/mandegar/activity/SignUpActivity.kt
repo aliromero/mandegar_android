@@ -20,6 +20,7 @@ class SignUpActivity : AppCompatActivity() {
     lateinit var enterCodeFragment: SignUpFragment
     lateinit var enterNameFragment: SignUpFragment
     lateinit var enterImageFragment: SignUpFragment
+    lateinit var enterPasswordFragment: SignUpFragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +31,7 @@ class SignUpActivity : AppCompatActivity() {
         enterCodeFragment = SignUpFragment.newInstance("enter_code")
         enterNameFragment = SignUpFragment.newInstance("enter_name")
         enterImageFragment = SignUpFragment.newInstance("enter_image")
+        enterPasswordFragment = SignUpFragment.newInstance("enter_password")
 
         initUi()
 
@@ -47,7 +49,7 @@ class SignUpActivity : AppCompatActivity() {
     private fun initUi() {
 
         setSupportActionBar(toolbar)
-        displayFragment(enterMobileFragment)
+        displayFragment(enterEmailFragment)
 
         iv_close.setOnClickListener {
             finish()
