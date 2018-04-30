@@ -97,5 +97,8 @@
                 android:text="@string/register_complete"
                 android:textColor="@android:color/white" />
 
+            <include layout="@layout/loading" />
+
+
         </LinearLayout>
 </RelativeLayout>

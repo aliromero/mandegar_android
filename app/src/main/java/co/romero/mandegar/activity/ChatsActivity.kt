@@ -21,7 +21,10 @@ import co.romero.mandegar.Util.NotificationUtils
 import co.romero.mandegar.Util.Utils
 import co.romero.mandegar.adapter.ChatRoomThreadAdapter
 import co.romero.mandegar.app.Config
+import co.romero.mandegar.interfaces.RespoDataInterface
 import co.romero.mandegar.model.Message
+import co.romero.mandegar.network.EndPoints
+import co.romero.mandegar.response.Respo
 
 import kotlinx.android.synthetic.main.activity_chats.*
 import java.util.ArrayList
@@ -29,25 +32,34 @@ import java.util.ArrayList
 
 class ChatsActivity : AppCompatActivity() {
     private lateinit var mRegistrationBroadcastReceiver: BroadcastReceiver
-    private lateinit var messageArrayList: ArrayList<Message>
+    private lateinit var messageArrayList: List<Message>
     private lateinit var mAdapter: ChatRoomThreadAdapter
-
+    private lateinit var utils: Utils
+    private lateinit var endPoints: EndPoints
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-
+        messageArrayList = Message.listAll(Message::class.java)
         setContentView(R.layout.activity_chats)
+        if (!intent.hasExtra("chatroom_id")) {
+            finish()
+        }
+
+        utils = Utils.getInstance(applicationContext)!!
+        endPoints = EndPoints.getInstance(applicationContext)!!
+
+
         tv_title.text = "گروه عمومی"
-        messageArrayList = ArrayList<Message>()
         // self user id is to identify the message owner
         val selfUserId = Utils.getInstance(applicationContext)!!.getCustomerId()
-       mAdapter = ChatRoomThreadAdapter(this, messageArrayList, selfUserId)
+       mAdapter = ChatRoomThreadAdapter(this, messageArrayList, selfUserId.toInt())
         val layoutManager = LinearLayoutManager(this)
         rv_chats.layoutManager = layoutManager
         rv_chats.itemAnimator = DefaultItemAnimator()
         rv_chats.adapter = mAdapter
 
+        rv_chats.layoutManager.scrollToPosition(mAdapter.itemCount-1 )
 
 
         mRegistrationBroadcastReceiver = object : BroadcastReceiver() {
@@ -143,18 +155,31 @@ class ChatsActivity : AppCompatActivity() {
         et_message.setText("")
 
         val message = Message()
-        message.id = "1"
         message.message = text_message
+        message.customer_id = utils.getCustomerId().toInt()
+        message.chatroom_id = intent.getIntExtra("chatroom_id",0)
         message.createdAt = ""
 
+        message.save()
 
-        messageArrayList.add(message)
-
+        messageArrayList = Message.listAll(Message::class.java)
+        mAdapter = ChatRoomThreadAdapter(this, messageArrayList, utils.getCustomerId().toInt())
+        rv_chats.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
         if (mAdapter.itemCount > 1) {
             // scrolling to bottom of the recycler view
-            rv_chats.layoutManager.smoothScrollToPosition(rv_chats, null, mAdapter.itemCount - 1)
+            rv_chats.layoutManager.scrollToPosition(mAdapter.itemCount - 1)
         }
+
+
+        endPoints.sendMessage(text_message,intent.getIntExtra("chatroom_id",0),object: RespoDataInterface {
+            override fun data(response: Respo) {
+
+            }
+
+            override fun status(msg: String?) {
+            }
+        })
 
 
     }

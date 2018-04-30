@@ -5,7 +5,12 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-public class App extends Application {
+import com.facebook.stetho.InspectorModulesProvider;
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.inspector.protocol.ChromeDevtoolsDomain;
+import com.orm.SugarContext;
+
+public class App extends com.orm.SugarApp {
     private static App mInstance;
 
     public static synchronized App getInstance() {
@@ -19,12 +24,11 @@ public class App extends Application {
         super.onCreate();
         mInstance = this;
 
-
-//        OneSignal.startInit(this)
-//                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-//                .unsubscribeWhenNotificationsAreDisabled(true)
-//                .init();
-
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                        .build());
 
 
 
@@ -47,6 +51,7 @@ public class App extends Application {
 
     @Override
     public void onTerminate() {
+        SugarContext.terminate();
         super.onTerminate();
     }
 }

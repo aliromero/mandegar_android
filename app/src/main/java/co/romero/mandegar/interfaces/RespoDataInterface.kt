@@ -1,6 +1,6 @@
 package co.romero.mandegar.interfaces
 
-import co.romero.mandegar.model.Respo
+import co.romero.mandegar.response.Respo
 
 interface RespoDataInterface {
 

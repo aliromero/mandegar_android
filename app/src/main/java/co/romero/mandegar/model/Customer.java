@@ -1,62 +1,53 @@
 package co.romero.mandegar.model;
 
-import java.io.Serializable;
+import com.orm.SugarRecord;
+
+import java.util.List;
+
+import co.romero.mandegar.response.Profile;
 
 /**
  * Created by Lincoln on 07/01/16.
  */
-public class Customer implements Serializable {
-    private String id, name, mobile, email,image;
-
+public class Customer extends SugarRecord {
+    private String id, name,description,createdAt, updatedAt;
+    private  int chatroom_id;
+    private List<Profile> profiles;
 
     public Customer() {
     }
 
-    public Customer(String id, String name, String mobile) {
-        this.id = id;
-        this.name = name;
-        this.mobile = mobile;
+   
+   
 
+
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
 
-    public String getName() {
-        return name;
+
+    public int getChatroom_id() {
+        return chatroom_id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setChatroom_id(int chatroom_id) {
+        this.chatroom_id = chatroom_id;
     }
 
-    public String getMobile() {
-        return mobile;
+    public String getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
+    public List<Profile> getProfiles() {
+        return profiles;
     }
 }

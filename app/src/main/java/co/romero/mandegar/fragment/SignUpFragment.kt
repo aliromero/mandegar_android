@@ -16,7 +16,7 @@ import co.romero.mandegar.Util.Utils
 import co.romero.mandegar.activity.MainActivity
 import co.romero.mandegar.activity.SignUpActivity
 import co.romero.mandegar.interfaces.RespoDataInterface
-import co.romero.mandegar.model.Respo
+import co.romero.mandegar.response.Respo
 import co.romero.mandegar.network.EndPoints
 import kotlinx.android.synthetic.main.fragment_enter_code.view.*
 import kotlinx.android.synthetic.main.fragment_enter_image.view.*
@@ -30,23 +30,13 @@ import kotlinx.android.synthetic.main.fragment_enter_email.view.*
 import android.telephony.TelephonyManager
 import kotlinx.android.synthetic.main.fragment_enter_code.*
 import java.util.*
-import android.content.BroadcastReceiver
 import android.provider.MediaStore
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.fragment_enter_password.view.*
-import co.romero.mandegar.R.id.et_password
-import android.text.InputType
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.widget.Toast
 import co.romero.mandegar.activity.GroupsActivity
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.fragment_enter_password.*
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
+import com.theartofdev.edmodo.cropper.CropImage
 import java.io.IOException
 
 
@@ -328,7 +318,7 @@ class SignUpFragment : Fragment() {
 
 
 
-        view
+
 
         val main = activity as SignUpActivity
         view.btn_next03.setOnClickListener {
@@ -344,7 +334,7 @@ class SignUpFragment : Fragment() {
                             utils!!.save_api_token(response.api_token)
                             when {
                                 response.customer.name.isNullOrEmpty() -> main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
-                                response.customer.image.isNullOrEmpty() -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
+                                response.customer.profiles.size == 0 -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
                                 else -> {
                                     startActivity(Intent(context, GroupsActivity::class.java))
                                     activity!!.finish()
@@ -462,7 +452,7 @@ class SignUpFragment : Fragment() {
                         hideKeyboard(activity!!)
 
                         when {
-                            response.customer.image.isNullOrEmpty() -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
+                            response.customer.profiles.size == 0  -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
                             else -> {
                                 startActivity(Intent(context, GroupsActivity::class.java))
                                 activity!!.finish()
@@ -500,7 +490,7 @@ class SignUpFragment : Fragment() {
 
         view.btn_next4.setOnClickListener {
             hideKeyboard(activity!!)
-            startActivity(Intent(context, MainActivity::class.java))
+            startActivity(Intent(context, GroupsActivity::class.java))
             activity!!.finish()
         }
     }
@@ -561,33 +551,37 @@ class SignUpFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            1001 -> if (null != data) {
-                val uri = data.data
+            CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+                val result = CropImage.getActivityResult(data)
+                val resultUri = result.uri
 
                 try {
-                    val bitmap = MediaStore.Images.Media.getBitmap(context!!.contentResolver, uri)
-                     val file = utils!!.save(context!!,utils!!.scaleBitmap(bitmap, 500, 500))
+                    view!!.btn_next4.isEnabled = false
+                    pb_loading.visibility = View.VISIBLE
+                    val bitmap = MediaStore.Images.Media.getBitmap(context!!.contentResolver, resultUri)
+                    val file = utils!!.save(context!!, utils!!.scaleBitmap(bitmap, 500, 500))
 
-                    Glide.with(context).load(file).into(view!!.change_pic)
-                    endPoints!!.checkPic(file,utils!!.getCustomerId(),object: RespoDataInterface {
+                    Glide.with(context).load(resultUri).into(view!!.change_pic)
+                    endPoints!!.checkPic(file, utils!!.getCustomerId(), object : RespoDataInterface {
                         override fun data(response: Respo) {
-
+                            pb_loading.visibility = View.GONE
+                            view!!.btn_next4.isEnabled = true
                         }
 
                         override fun status(msg: String?) {
-
+                            pb_loading.visibility = View.GONE
+                            view!!.btn_next4.isEnabled = true
                         }
                     })
 
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-
-
-
-
-
-
+            }
+            1001 -> if (null != data) {
+                val uri = data.data
+                CropImage.activity(uri).setAspectRatio(1,1)
+                        .start(context!!, this)
 
             }
             else -> {

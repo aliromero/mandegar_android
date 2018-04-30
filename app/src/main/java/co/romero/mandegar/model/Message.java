@@ -1,31 +1,21 @@
 package co.romero.mandegar.model;
 
+import com.orm.SugarRecord;
+
 import java.io.Serializable;
 
 /**
  * Created by Lincoln on 07/01/16.
  */
-public class Message implements Serializable {
-    String id, message, createdAt;
-    Customer user;
+public class Message extends SugarRecord {
+    private String id, message, createdAt, updatedAt;
+    private  int chatroom_id,customer_id;
 
     public Message() {
     }
 
-    public Message(String id, String message, String createdAt, Customer user) {
-        this.id = id;
-        this.message = message;
-        this.createdAt = createdAt;
-        this.user = user;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+   
+   
 
     public String getMessage() {
         return message;
@@ -43,11 +33,29 @@ public class Message implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Customer getUser() {
-        return user;
+
+
+    public int getChatroom_id() {
+        return chatroom_id;
     }
 
-    public void setUser(Customer user) {
-        this.user = user;
+    public void setChatroom_id(int chatroom_id) {
+        this.chatroom_id = chatroom_id;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public int getCustomer_id() {
+        return customer_id;
+    }
+
+    public void setCustomer_id(int customer_id) {
+        this.customer_id = customer_id;
     }
 }

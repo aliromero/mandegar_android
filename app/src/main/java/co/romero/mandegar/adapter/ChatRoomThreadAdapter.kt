@@ -11,14 +11,14 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Calendar
-import java.util.Date
 
 import co.romero.mandegar.R
+import co.romero.mandegar.Util.Utils
 import co.romero.mandegar.model.Message
 
 
-class ChatRoomThreadAdapter(private val mContext: Context, private val messageArrayList: ArrayList<Message>, private val userId: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val SELF = 100
+class ChatRoomThreadAdapter(private val mContext: Context, private val messageArrayList: List<Message>, public val userId: Int) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val SELF = userId
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         internal var message: TextView
@@ -58,13 +58,13 @@ class ChatRoomThreadAdapter(private val mContext: Context, private val messageAr
 
 
     override fun getItemViewType(position: Int): Int {
-        return SELF
-//        val message = messageArrayList[position]
-//        return if (message.user.id == userId) {
-//            SELF
-//        } else position
+        val message = messageArrayList[position]
+        return if (message.customer_id == userId) {
+            SELF
+        } else position
 
     }
+
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messageArrayList[position]

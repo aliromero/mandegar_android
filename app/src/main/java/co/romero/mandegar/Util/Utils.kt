@@ -242,6 +242,7 @@ class Utils protected constructor(private val context: Context) {
         set_mobile("")
         set_email("")
         setCustomerId("")
+        save_api_token("")
 
     }
     fun setRegId(regId:String) {

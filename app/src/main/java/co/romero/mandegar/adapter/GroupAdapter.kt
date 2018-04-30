@@ -5,29 +5,26 @@ import android.content.Context
 import android.os.Build
 import android.support.v7.widget.RecyclerView
 import android.text.Html
-import android.text.Html.fromHtml
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import co.romero.mandegar.R
 import co.romero.mandegar.Util.Utils
-import com.bumptech.glide.Glide
 import android.text.Spanned
 import android.widget.LinearLayout
+import android.widget.TextView
+import co.romero.mandegar.model.ChatRoom
+import android.R.attr.data
 
 
-class GroupAdapter(private val mContext: Context?, private val items: List<String>) : RecyclerView.Adapter<GroupAdapter.CustomViewHolder>() {
 
 
-    private var onItemClickListener: OnItemClickListener? = null
-    private var utils: Utils? = null
+class GroupAdapter(private val mContext: Context?, private val items: MutableList<ChatRoom>) : RecyclerView.Adapter<GroupAdapter.CustomViewHolder>() {
 
+
+    private lateinit var onItemClickListener: OnItemClickListener
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): CustomViewHolder {
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_group, null)
-        this.utils = Utils.getInstance(mContext)
 
         return CustomViewHolder(view)
     }
@@ -37,11 +34,17 @@ class GroupAdapter(private val mContext: Context?, private val items: List<Strin
 
 //        Glide.with(mContext!!).load(messageItem).into(customViewHolder.cover!!)
 
-        val listener = View.OnClickListener { onItemClickListener!!.onItemClick(messageItem) }
+        val listener = View.OnClickListener {
+            onItemClickListener.onItemClick(messageItem)
+        }
 
         customViewHolder.ll_click!!.setOnClickListener(listener)
 
-//        customViewHolder.tv_text!!.text = fromHtml("<b>aliromero</b> تصویر شما را میپسندد.<font color='#A0A4A2'><small> 2m</small></font>")
+
+
+
+        customViewHolder.tv_message!!.text = messageItem.last_message
+        customViewHolder.tv_title!!.text = messageItem.name
 
     }
 
@@ -62,11 +65,15 @@ class GroupAdapter(private val mContext: Context?, private val items: List<Strin
 
         inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             var ll_click: LinearLayout? = null
+            var tv_message: TextView? = null
+            var tv_title: TextView? = null
 //            var tv_text: TextView? = null
 
 
             init {
                 this.ll_click = view.findViewById(R.id.ll_click)
+                this.tv_message = view.findViewById(R.id.tv_message)
+                this.tv_title = view.findViewById(R.id.tv_title)
 //                this.tv_text = view.findViewById(R.id.tv_text)
 
             }
@@ -79,7 +86,7 @@ class GroupAdapter(private val mContext: Context?, private val items: List<Strin
 
 
         interface OnItemClickListener {
-            fun onItemClick(item: String)
+            fun onItemClick(item: ChatRoom)
         }
 
     }

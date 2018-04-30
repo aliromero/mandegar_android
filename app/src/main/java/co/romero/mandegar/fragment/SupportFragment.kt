@@ -62,14 +62,8 @@ class SupportFragment : Fragment() {
     private fun showGroups(view:View)
     {
 
-        val data: MutableList<String> = mutableListOf()
-        data.add(0, "https://www.ekito.fr/people/wp-content/uploads/2017/01/sample-1.jpg")
-        data.add(1, "http://cdn3.nflximg.net/images/3093/2043093.jpg")
-        data.add(2, "https://www.ekito.fr/people/wp-content/uploads/2017/01/sample-1.jpg")
+//
 
-        val booksAdapter = GroupAdapter(context,data)
-        view.recyclerView.layoutManager = LinearLayoutManager(context)
-        view.recyclerView.adapter = booksAdapter
     }
 
 

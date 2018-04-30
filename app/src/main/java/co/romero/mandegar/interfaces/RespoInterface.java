@@ -1,6 +1,7 @@
 package co.romero.mandegar.interfaces;
 
-import co.romero.mandegar.model.Respo;
+import co.romero.mandegar.request.SendMessageRequest;
+import co.romero.mandegar.response.Respo;
 import co.romero.mandegar.request.CustomerCheckCodeRequest;
 import co.romero.mandegar.request.CustomerEmailRequest;
 import co.romero.mandegar.request.CustomerLoginOrRegisterRequest;
@@ -17,7 +18,6 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface RespoInterface {
 
@@ -42,6 +42,14 @@ public interface RespoInterface {
 
     @POST("resetPass")
     Call<Respo> resetEmail(@Body CustomerResetEmailRequest request);
+
+
+    @POST("getGroups")
+    Call<Respo> getGroups();
+
+
+    @POST("sendMessage")
+    Call<Respo> sendMessage(@Body SendMessageRequest request);
 
 
 

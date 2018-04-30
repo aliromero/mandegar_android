@@ -6,7 +6,7 @@ import co.romero.mandegar.app.App
 import co.romero.mandegar.Util.Utils
 import co.romero.mandegar.interfaces.RespoDataInterface
 import co.romero.mandegar.interfaces.RespoInterface
-import co.romero.mandegar.model.Respo
+import co.romero.mandegar.response.Respo
 import co.romero.mandegar.request.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -20,6 +20,70 @@ import java.lang.ref.WeakReference
 
 class EndPoints protected constructor(private val context: Context) {
     private val TAG = EndPoints::class.java.name
+
+
+    fun getGroups(respoDataInterface: RespoDataInterface) {
+        if (!App.getInstance().isDataConnected) {
+            respoDataInterface.status(" . لطفا اتصال اینترنت خود را بررسی کنید و مجدد تلاش کنید.")
+        } else {
+            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress(),Utils.getInstance(context)!!.get_api_token())
+            val call = shopInterface.groups
+            call.enqueue(object : Callback<Respo?> {
+                override fun onFailure(call: Call<Respo?>?, t: Throwable?) {
+                    if (!t!!.message.isNullOrEmpty())
+                        respoDataInterface.status(t.message)
+                }
+
+                override fun onResponse(call: Call<Respo?>?, response: Response<Respo?>?) {
+                    if (response!!.isSuccessful) {
+                        if (response.body()!!.isStatus) {
+                            respoDataInterface.data(response.body()!!)
+                        } else {
+                            respoDataInterface.status(TextUtils.join("\r\n", response.body()?.error))
+                        }
+
+
+                    }
+                }
+            })
+        }
+
+    }
+
+
+    fun sendMessage(text:String,chatroom_id:Int,respoDataInterface: RespoDataInterface) {
+        if (!App.getInstance().isDataConnected) {
+            respoDataInterface.status(" . لطفا اتصال اینترنت خود را بررسی کنید و مجدد تلاش کنید.")
+        } else {
+            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress(),Utils.getInstance(context)!!.get_api_token())
+            val task = SendMessageRequest(text, chatroom_id)
+            val call = shopInterface.sendMessage(task)
+            call.enqueue(object : Callback<Respo?> {
+                override fun onFailure(call: Call<Respo?>?, t: Throwable?) {
+                    if (!t!!.message.isNullOrEmpty())
+                        respoDataInterface.status(t.message)
+                }
+
+                override fun onResponse(call: Call<Respo?>?, response: Response<Respo?>?) {
+                    if (response!!.isSuccessful) {
+                        if (response.body()!!.isStatus) {
+                            respoDataInterface.data(response.body()!!)
+                        } else {
+                            respoDataInterface.status(TextUtils.join("\r\n", response.body()?.error))
+                        }
+
+
+                    }
+                }
+            })
+        }
+
+    }
+
+
+
+
+
 
     fun checkMobile(mobile: String, reg_id: String, respoDataInterface: RespoDataInterface) {
         if (!App.getInstance().isDataConnected) {
@@ -57,7 +121,7 @@ class EndPoints protected constructor(private val context: Context) {
         if (!App.getInstance().isDataConnected) {
             respoDataInterface.status(" . لطفا اتصال اینترنت خود را بررسی کنید و مجدد تلاش کنید.")
         } else {
-            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress())
+            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress(),Utils.getInstance(context)!!.get_api_token())
             val task = CustomerNameRequest(name)
             val call = shopInterface.checkName(task, id)
             call.enqueue(object : Callback<Respo?> {
@@ -87,7 +151,7 @@ class EndPoints protected constructor(private val context: Context) {
         if (!App.getInstance().isDataConnected) {
             respoDataInterface.status(" . لطفا اتصال اینترنت خود را بررسی کنید و مجدد تلاش کنید.")
         } else {
-            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress())
+            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress(),Utils.getInstance(context)!!.get_api_token())
             val file = prepareFilePart("pic", src)
             val call = shopInterface.checkPic(file, id)
             call.enqueue(object : Callback<Respo?> {
@@ -118,7 +182,7 @@ class EndPoints protected constructor(private val context: Context) {
         val requestFile = RequestBody.create(MediaType.parse("image/*"), file)
 
         // MultipartBody.Part is used to send also the actual file name
-        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile)
+        return MultipartBody.Part.createFormData(partName, file.name, requestFile)
     }
 
 
