@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import co.romero.mandegar.R
@@ -25,13 +26,10 @@ import co.romero.mandegar.interfaces.RespoDataInterface
 import co.romero.mandegar.model.Message
 import co.romero.mandegar.network.EndPoints
 import co.romero.mandegar.response.Respo
-
 import kotlinx.android.synthetic.main.activity_chats.*
-import java.util.ArrayList
 
 
 class ChatsActivity : AppCompatActivity() {
-    private lateinit var mRegistrationBroadcastReceiver: BroadcastReceiver
     private lateinit var messageArrayList: List<Message>
     private lateinit var mAdapter: ChatRoomThreadAdapter
     private lateinit var utils: Utils
@@ -62,14 +60,7 @@ class ChatsActivity : AppCompatActivity() {
         rv_chats.layoutManager.scrollToPosition(mAdapter.itemCount-1 )
 
 
-        mRegistrationBroadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == Config.PUSH_NOTIFICATION) {
-                    // new push message is received
-//                    handlePushNotification(intent)
-                }
-            }
-        }
+
 
 
         btn_send.setOnClickListener {
@@ -164,7 +155,6 @@ class ChatsActivity : AppCompatActivity() {
 
         messageArrayList = Message.listAll(Message::class.java)
         mAdapter = ChatRoomThreadAdapter(this, messageArrayList, utils.getCustomerId().toInt())
-        rv_chats.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
         if (mAdapter.itemCount > 1) {
             // scrolling to bottom of the recycler view
@@ -190,7 +180,6 @@ class ChatsActivity : AppCompatActivity() {
         super.onBackPressed()
     }
     override fun onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver)
         super.onPause()
     }
 
@@ -198,10 +187,7 @@ class ChatsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                IntentFilter(Config.PUSH_NOTIFICATION))
 
-        NotificationUtils.clearNotifications(applicationContext)
     }
 }
 

@@ -10,7 +10,7 @@ import co.romero.mandegar.response.Profile;
  * Created by Lincoln on 07/01/16.
  */
 public class Customer extends SugarRecord {
-    private String id, name,description,createdAt, updatedAt;
+    private String id, name,description,email,createdAt, updatedAt,pic;
     private  int chatroom_id;
     private List<Profile> profiles;
 
@@ -49,5 +49,42 @@ public class Customer extends SugarRecord {
 
     public List<Profile> getProfiles() {
         return profiles;
+    }
+
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPic() {
+        return pic;
+    }
+
+    public void setPic(String pic) {
+        this.pic = pic;
     }
 }

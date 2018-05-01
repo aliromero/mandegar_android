@@ -18,7 +18,6 @@ public class App extends com.orm.SugarApp {
     }
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();

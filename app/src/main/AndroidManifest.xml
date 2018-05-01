@@ -8,6 +8,13 @@
     <!-- if you want to load images from a file OR from the internet -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <permission android:name="co.romero.mandegar.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="co.romero.mandegar.permission.C2D_MESSAGE" />
+
+
     <application
         android:allowBackup="true"
         android:name=".app.App"
@@ -27,9 +34,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="co.romero.mandegar.activity.MainActivity"
-            android:launchMode="singleTask"
-            />
+
         <activity android:name=".activity.SignUpActivity"
             android:launchMode="singleTask"
             />
@@ -43,22 +48,49 @@
             android:launchMode="singleTask"
             />
 
-
-        <!-- Firebase Notifications -->
-        <service android:name=".service.MyFirebaseMessagingService">
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="co.romero.mandegar.gcm" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".gcm.MyGcmPushReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
 
-        <service android:name=".service.MyFirebaseInstanceIDService">
+        <service
+            android:name=".gcm.GcmIntentService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
-        <!-- ./Firebase Notifications -->
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
+
+
+        <!--&lt;!&ndash; Firebase Notifications &ndash;&gt;-->
+        <!--<service android:name=".service.MyFirebaseMessagingService">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
+
+        <!--<service android:name=".service.MyFirebaseInstanceIDService">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.INSTANCE_ID_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
+        <!--&lt;!&ndash; ./Firebase Notifications &ndash;&gt;-->
+        <!--<activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"-->
+            <!--android:theme="@style/Base.Theme.AppCompat"/>-->
 
 
         <meta-data
@@ -66,7 +98,7 @@
             android:value="database.db" />
         <meta-data
             android:name="VERSION"
-            android:value="5" />
+            android:value="6" />
         <meta-data
             android:name="QUERY_LOG"
             android:value="true" />

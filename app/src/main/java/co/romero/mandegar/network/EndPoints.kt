@@ -81,6 +81,38 @@ class EndPoints protected constructor(private val context: Context) {
     }
 
 
+    fun updateGcm(token:String,respoDataInterface: RespoDataInterface) {
+        if (!App.getInstance().isDataConnected) {
+            respoDataInterface.status(" . لطفا اتصال اینترنت خود را بررسی کنید و مجدد تلاش کنید.")
+        } else {
+            val shopInterface = ServiceGenerator.createService(RespoInterface::class.java, context, Utils.getInstance(context)!!.getApiAddress(),Utils.getInstance(context)!!.get_api_token())
+
+            val call = shopInterface.updateGcm(token)
+            call.enqueue(object : Callback<Respo?> {
+                override fun onFailure(call: Call<Respo?>?, t: Throwable?) {
+                    if (!t!!.message.isNullOrEmpty())
+                        respoDataInterface.status(t.message)
+                }
+
+                override fun onResponse(call: Call<Respo?>?, response: Response<Respo?>?) {
+                    if (response!!.isSuccessful) {
+                        if (response.body()!!.isStatus) {
+                            respoDataInterface.data(response.body()!!)
+                        } else {
+                            respoDataInterface.status(TextUtils.join("\r\n", response.body()?.error))
+                        }
+
+
+                    }
+                }
+            })
+        }
+
+    }
+
+
+
+
 
 
 

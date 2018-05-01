@@ -55,12 +55,7 @@ class SignUpActivity : AppCompatActivity() {
             finish()
         }
 
-        if (FirebaseInstanceId.getInstance().token != null)
-            Utils.getInstance(applicationContext)!!.setRegId(FirebaseInstanceId.getInstance().token!!)
-        else {
-            startActivity(Intent(this, SplashActivity::class.java))
-            finish()
-        }
+
 
     }
 

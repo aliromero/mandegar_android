@@ -13,6 +13,8 @@ import co.romero.mandegar.request.CustomerResetEmailRequest;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -38,6 +40,10 @@ public interface RespoInterface {
     @Multipart
     @POST("checkPic/{id}")
     Call<Respo> checkPic(@Part MultipartBody.Part pic, @Path("id") String id);
+
+    @FormUrlEncoded
+    @POST("updateGcm")
+    Call<Respo> updateGcm(@Field("gcm_registration_id") String gcm_registration_id);
 
 
     @POST("resetPass")

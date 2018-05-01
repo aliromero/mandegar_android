@@ -20,6 +20,7 @@ import co.romero.mandegar.Constant.Constants
 import co.romero.mandegar.Constant.Constants.*
 import co.romero.mandegar.R
 import co.romero.mandegar.SecurePreferences
+import co.romero.mandegar.model.Customer
 import java.io.File
 import java.io.FileOutputStream
 
@@ -155,6 +156,44 @@ class Utils protected constructor(private val context: Context) {
         return file
     }
 
+    fun getUser(): Customer? {
+        if (prefs_secure.getString("customer_id") != null) {
+            val id: String?
+            val name: String?
+            val email: String?
+            val pic: String?
+            id = getCustomerId()
+            name = get_name()
+            email = get_email()
+
+
+            val customer = Customer()
+            customer.name = name
+            customer.id = id.toLong()
+            customer.email = email
+            customer.pic = ""
+            customer.save()
+            return customer
+        }
+        return null
+    }
+
+    fun addNotification(msg:String)
+    {
+        var oldNotifications: String? = getNotifications()
+
+        if (oldNotifications != null) {
+            oldNotifications += "|$msg"
+        } else {
+            oldNotifications = msg
+        }
+
+        prefs_secure.put("notification_chats", oldNotifications)
+    }
+
+    fun getNotifications(): String? {
+        return prefs_secure.getString("notification_chats")
+    }
 
     fun scaleBitmap(bm: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         var bm = bm

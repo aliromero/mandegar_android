@@ -13,7 +13,6 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import co.romero.mandegar.R
 import co.romero.mandegar.Util.Utils
-import co.romero.mandegar.activity.MainActivity
 import co.romero.mandegar.activity.SignUpActivity
 import co.romero.mandegar.interfaces.RespoDataInterface
 import co.romero.mandegar.response.Respo
@@ -121,7 +120,7 @@ class SignUpFragment : Fragment() {
                             utils!!.set_mobile(view.et_mobile.text.toString())
                             hideKeyboard(activity!!)
                             if (response.isExist_customer) {
-                                startActivity(Intent(context, MainActivity::class.java))
+                                startActivity(Intent(context, GroupsActivity::class.java))
                                 activity!!.finish()
                             } else {
                                 main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")
@@ -417,7 +416,7 @@ class SignUpFragment : Fragment() {
                         hideKeyboard(activity!!)
                         if (exist_customer == 1) {
 
-                            startActivity(Intent(context, MainActivity::class.java))
+                            startActivity(Intent(context, GroupsActivity::class.java))
                             activity!!.finish()
                         } else {
                             main.displayFragment(main.getFragment(main.enterNameFragment, "index", "none", "enter_name", "2"), "مرحله 3/4 - وارد کردن نام")

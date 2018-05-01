@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -22,13 +23,17 @@ import co.romero.mandegar.Util.NotificationUtils
 import co.romero.mandegar.Util.Utils
 import co.romero.mandegar.adapter.GroupAdapter
 import co.romero.mandegar.app.Config
+import co.romero.mandegar.gcm.GcmIntentService
 import co.romero.mandegar.interfaces.RespoDataInterface
 import co.romero.mandegar.model.ChatRoom
+import co.romero.mandegar.model.Message2
 import co.romero.mandegar.network.EndPoints
 import co.romero.mandegar.response.Respo
 import com.facebook.stetho.Stetho
-import com.google.firebase.messaging.FirebaseMessaging
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.fragment_support.*
+import java.util.ArrayList
 
 
 class GroupsActivity : AppCompatActivity() {
@@ -36,7 +41,8 @@ class GroupsActivity : AppCompatActivity() {
     internal lateinit var mRegistrationBroadcastReceiver: BroadcastReceiver
     private lateinit var endPoints: EndPoints
     private lateinit var groupList: MutableList<ChatRoom>
-    private lateinit var adapter: GroupAdapter
+    private var adapter: GroupAdapter? = null
+    private val PLAY_SERVICES_RESOLUTION_REQUEST = 9000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +55,7 @@ class GroupsActivity : AppCompatActivity() {
         rv_groups.layoutManager = LinearLayoutManager(applicationContext)
         adapter = GroupAdapter(applicationContext, groupList)
         rv_groups.adapter = adapter
-        adapter.setOnItemClickListener(object : GroupAdapter.OnItemClickListener {
+        adapter?.setOnItemClickListener(object : GroupAdapter.OnItemClickListener {
             override fun onItemClick(item: ChatRoom) {
                 val intent = Intent(this@GroupsActivity, ChatsActivity::class.java)
                 intent.putExtra("chatroom_id",item.chatroomid)
@@ -57,6 +63,34 @@ class GroupsActivity : AppCompatActivity() {
                 overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right)
             }
         })
+
+
+        mRegistrationBroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                Log.e("iiiii", "ddddd")
+                // checking for type intent filter
+                if (intent.action == Config.REGISTRATION_COMPLETE) {
+                    Log.e("iiiii", "iii")
+                    // gcm successfully registered
+                    // now subscribe to `global` topic to receive app wide notifications
+                    subscribeToAllTopics()
+
+                } else if (intent.action == Config.SENT_TOKEN_TO_SERVER) {
+                    // gcm registration id is stored in our server's MySQL
+                    Log.e("iiiii", "GCM registration id is sent to our server")
+
+                } else if (intent.action == Config.PUSH_NOTIFICATION) {
+                    Log.e("iiiii", "iiii")
+                    // new push notification is received
+                    handlePushNotification(intent)
+                }
+            }
+        }
+
+
+        if (checkPlayServices()) {
+            registerGCM()
+        }
 
         endPoints.getGroups(object : RespoDataInterface {
             override fun data(response: Respo) {
@@ -102,10 +136,11 @@ class GroupsActivity : AppCompatActivity() {
                         }
                     }
 
-
-                    groupList = ChatRoom.listAll(ChatRoom::class.java)
                     rv_groups.adapter = adapter
-                    adapter.notifyDataSetChanged()
+                    groupList = ChatRoom.listAll(ChatRoom::class.java)
+                    adapter = GroupAdapter(applicationContext, groupList)
+
+                    adapter?.notifyDataSetChanged()
 
                 }
             }
@@ -124,25 +159,49 @@ class GroupsActivity : AppCompatActivity() {
 //        })
 
 
-        mRegistrationBroadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-
-                // checking for type intent filter
-                if (intent.action == Config.REGISTRATION_COMPLETE) {
-                    // gcm successfully registered
-                    // now subscribe to `global` topic to receive app wide notifications
-                    FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL)
 
 
-                } else if (intent.action == Config.PUSH_NOTIFICATION) {
-                    // new push notification is received
+    }
 
-                    if (intent.getStringExtra("action") == "logout") {
-                        two_user()
-                    }
-//                    txtMessage.setText(message)
-                }
+
+    // subscribing to global topic
+    private fun subscribeToGlobalTopic() {
+        val intent = Intent(this, GcmIntentService::class.java)
+        intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE)
+        intent.putExtra(GcmIntentService.TOPIC, Config.TOPIC_GLOBAL)
+        startService(intent)
+    }
+
+    // Subscribing to all chat room topics
+    // each topic name starts with `topic_` followed by the ID of the chat room
+    // Ex: topic_1, topic_2
+    private fun subscribeToAllTopics() {
+        for (cr in groupList!!) {
+
+            val intent = Intent(this, GcmIntentService::class.java)
+            intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE)
+            intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.getId())
+            startService(intent)
+        }
+    }
+
+    private fun handlePushNotification(intent: Intent) {
+        val type = intent.getIntExtra("type", -1)
+
+        // if the push is of chat room message
+        // simply update the UI unread messages count
+        if (type == Config.PUSH_TYPE_CHATROOM) {
+            val message = intent.getSerializableExtra("message") as Message2
+            val chatRoomId = intent.getStringExtra("chat_room_id")
+
+            if (message != null && chatRoomId != null) {
+//                updateRow(chatRoomId, message)
             }
+        } else if (type == Config.PUSH_TYPE_USER) {
+            // push belongs to user alone
+            // just showing the message in a toast
+            val message = intent.getSerializableExtra("message") as Message2
+            Toast.makeText(applicationContext, "New push: " + message.getMessage(), Toast.LENGTH_LONG).show()
         }
 
 
@@ -184,9 +243,12 @@ class GroupsActivity : AppCompatActivity() {
     }
 
 
+
     override fun onResume() {
         super.onResume()
 
+        Log.e("iiiii", "resume")
+        // register GCM registration complete receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 IntentFilter(Config.REGISTRATION_COMPLETE))
 
@@ -195,8 +257,8 @@ class GroupsActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 IntentFilter(Config.PUSH_NOTIFICATION))
 
-        // clear the notification area when the app is opened
-        NotificationUtils.clearNotifications(applicationContext)
+        // clearing the notification tray
+        co.romero.mandegar.gcm.NotificationUtils.clearNotifications()
 
 
     }
@@ -205,6 +267,33 @@ class GroupsActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver)
         super.onPause()
     }
+
+
+
+    private fun registerGCM() {
+        val intent = Intent(this, GcmIntentService::class.java)
+        intent.putExtra("key", "register")
+        startService(intent)
+    }
+
+    private fun checkPlayServices(): Boolean {
+        val apiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode = apiAvailability.isGooglePlayServicesAvailable(this)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show()
+            } else {
+                Log.i("iiiiii", "This device is not supported. Google Play Services not installed!")
+                Toast.makeText(applicationContext, "This device is not supported. Google Play Services not installed!", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            return false
+        }
+        return true
+    }
+
+
 
 }
 
