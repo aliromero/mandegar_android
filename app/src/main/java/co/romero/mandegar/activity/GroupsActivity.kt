@@ -8,13 +8,14 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
+import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -36,50 +37,42 @@ import kotlinx.android.synthetic.main.fragment_support.*
 import java.util.ArrayList
 
 
-class GroupsActivity : AppCompatActivity() {
+class GroupsActivity : AppCompatActivity(), RecyclerView.OnItemTouchListener {
+    override fun onTouchEvent(rv: RecyclerView?, e: MotionEvent?) {
+
+    }
+
+    override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?): Boolean {
+        gestureDetector.onTouchEvent(e)
+        return false
+    }
+
+    override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+    }
+
     private lateinit var utils: Utils
     internal lateinit var mRegistrationBroadcastReceiver: BroadcastReceiver
     private lateinit var endPoints: EndPoints
     private lateinit var groupList: MutableList<ChatRoom>
     private var adapter: GroupAdapter? = null
-    private val PLAY_SERVICES_RESOLUTION_REQUEST = 9000
+    private lateinit var gestureDetector: GestureDetectorCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.fragment_support)
-
         utils = Utils.getInstance(applicationContext)!!
         endPoints = EndPoints.getInstance(applicationContext)!!
         groupList = ChatRoom.listAll(ChatRoom::class.java)
-        rv_groups.layoutManager = LinearLayoutManager(applicationContext)
-        adapter = GroupAdapter(applicationContext, groupList)
-        rv_groups.adapter = adapter
-        adapter?.setOnItemClickListener(object : GroupAdapter.OnItemClickListener {
-            override fun onItemClick(item: ChatRoom) {
-                val intent = Intent(this@GroupsActivity, ChatsActivity::class.java)
-                intent.putExtra("chatroom_id",item.chatroomid)
-                startActivity(intent)
-                overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right)
-            }
-        })
+
+        initUi()
+
 
 
         mRegistrationBroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 Log.e("iiiii", "ddddd")
                 // checking for type intent filter
-                if (intent.action == Config.REGISTRATION_COMPLETE) {
-                    Log.e("iiiii", "iii")
-                    // gcm successfully registered
-                    // now subscribe to `global` topic to receive app wide notifications
-                    subscribeToAllTopics()
-
-                } else if (intent.action == Config.SENT_TOKEN_TO_SERVER) {
-                    // gcm registration id is stored in our server's MySQL
-                    Log.e("iiiii", "GCM registration id is sent to our server")
-
-                } else if (intent.action == Config.PUSH_NOTIFICATION) {
+               if (intent.action == Config.PUSH_NOTIFICATION) {
                     Log.e("iiiii", "iiii")
                     // new push notification is received
                     handlePushNotification(intent)
@@ -87,39 +80,44 @@ class GroupsActivity : AppCompatActivity() {
             }
         }
 
+        subscribeToAllTopics()
 
-        if (checkPlayServices()) {
-            registerGCM()
-        }
 
+
+        tv_status.text = "Updating..."
         endPoints.getGroups(object : RespoDataInterface {
             override fun data(response: Respo) {
                 if (response.isStatus) {
                     for (my_group in response.groups) {
-                        val model_group = ChatRoom.find(ChatRoom::class.java, "CHATROOMID = ?", my_group.id).asReversed()
+                        val model_groups = ChatRoom.find(ChatRoom::class.java, "CHATROOMID = ?", my_group.id).asReversed()
 
-                        if (model_group.size > 0) {
-                            if (my_group.id.toInt() != model_group[0].chatroomid) {
-                                val group = ChatRoom()
-                                group.name = my_group.name
-                                group.pic = my_group.pic
-                                group.chatroomid = my_group.id.toInt()
-                                if (my_group.message != null) {
-                                    group.last_message = my_group.message.text
-                                    group.time_last_message = my_group.message.created_at
-                                }
-                                group.save()
-                            } else {
+                        if (model_groups.size > 0) {
+                            for (model_group in model_groups) {
+                                if (my_group.id.toInt() != model_group.chatroomid) {
+                                    val group = ChatRoom()
+                                    group.name = my_group.name
+                                    group.pic = my_group.pic
+                                    group.chatroomid = my_group.id.toInt()
+                                    if (my_group.message != null) {
+                                        group.last_message = my_group.message.text
+                                        group.time_last_message = my_group.message.created_at
+                                    }
+                                    group.save()
 
-                                val group = ChatRoom.findById(ChatRoom::class.java, my_group.id.toInt())
-                                group.name = my_group.name
-                                group.pic = my_group.pic
-                                group.chatroomid = my_group.id.toInt()
-                                if (my_group.message != null) {
-                                    group.last_message = my_group.message.text
-                                    group.time_last_message = my_group.message.created_at
+                                } else {
+                                    if (model_group.pic != my_group.pic) {
+                                        model_group.pic = my_group.pic
+                                    }
+                                    if(my_group.message != null) {
+                                        if (model_group.last_message != my_group.message.text) {
+                                            model_group.last_message = my_group.message.text
+                                        }
+                                    }
+                                    if (!model_group.name.equals(my_group.name)) {
+                                        model_group.name = my_group.name
+                                    }
+                                    model_group.save()
                                 }
-                                group.save()
                             }
                         } else {
                             val group = ChatRoom()
@@ -136,17 +134,15 @@ class GroupsActivity : AppCompatActivity() {
                         }
                     }
 
-                    rv_groups.adapter = adapter
                     groupList = ChatRoom.listAll(ChatRoom::class.java)
-                    adapter = GroupAdapter(applicationContext, groupList)
-
-                    adapter?.notifyDataSetChanged()
+                    adapter?.setConversations(groupList)
+                    tv_status.visibility = View.GONE
 
                 }
             }
 
             override fun status(msg: String?) {
-
+                tv_status.visibility = View.GONE
             }
         })
 
@@ -159,10 +155,42 @@ class GroupsActivity : AppCompatActivity() {
 //        })
 
 
+    }
+
+
+    private fun initUi() {
+        tv_status.visibility = View.VISIBLE
+        tv_status.text = "Connecting..."
+        val linearLayoutManager = LinearLayoutManager(applicationContext)
+        linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        adapter = GroupAdapter(applicationContext, groupList)
+        rv_groups.layoutManager = linearLayoutManager
+        rv_groups.adapter = adapter
+        rv_groups.itemAnimator = DefaultItemAnimator()
+        rv_groups.itemAnimator.changeDuration = 0
+        //fix slow recyclerview start
+        rv_groups.setHasFixedSize(true)
+        rv_groups.setItemViewCacheSize(10)
+        rv_groups.isDrawingCacheEnabled = true
+        rv_groups.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
+
+        gestureDetector = GestureDetectorCompat(applicationContext, RecyclerViewBenOnGestureListener())
+
+
+
+
+
+        adapter?.setOnItemClickListener(object : GroupAdapter.OnItemClickListener {
+            override fun onItemClick(item: ChatRoom) {
+                val intent = Intent(this@GroupsActivity, ChatsActivity::class.java)
+                intent.putExtra("chatroom_id", item.chatroomid)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right)
+            }
+        })
 
 
     }
-
 
     // subscribing to global topic
     private fun subscribeToGlobalTopic() {
@@ -176,11 +204,11 @@ class GroupsActivity : AppCompatActivity() {
     // each topic name starts with `topic_` followed by the ID of the chat room
     // Ex: topic_1, topic_2
     private fun subscribeToAllTopics() {
-        for (cr in groupList!!) {
-
+        for (cr in groupList) {
+            Log.i("aaaa","topic_" + cr.id)
             val intent = Intent(this, GcmIntentService::class.java)
             intent.putExtra(GcmIntentService.KEY, GcmIntentService.SUBSCRIBE)
-            intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.getId())
+            intent.putExtra(GcmIntentService.TOPIC, "topic_" + cr.id)
             startService(intent)
         }
     }
@@ -201,7 +229,7 @@ class GroupsActivity : AppCompatActivity() {
             // push belongs to user alone
             // just showing the message in a toast
             val message = intent.getSerializableExtra("message") as Message2
-            Toast.makeText(applicationContext, "New push: " + message.getMessage(), Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext, "New push: " + message.message, Toast.LENGTH_LONG).show()
         }
 
 
@@ -243,19 +271,20 @@ class GroupsActivity : AppCompatActivity() {
     }
 
 
-
     override fun onResume() {
         super.onResume()
 
         Log.e("iiiii", "resume")
         // register GCM registration complete receiver
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                IntentFilter(Config.REGISTRATION_COMPLETE))
 
         // register new push message receiver
         // by doing this, the activity will be notified each time a new message arrives
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 IntentFilter(Config.PUSH_NOTIFICATION))
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                IntentFilter(Config.SENT_TOKEN_TO_SERVER))
+
 
         // clearing the notification tray
         co.romero.mandegar.gcm.NotificationUtils.clearNotifications()
@@ -270,30 +299,14 @@ class GroupsActivity : AppCompatActivity() {
 
 
 
-    private fun registerGCM() {
-        val intent = Intent(this, GcmIntentService::class.java)
-        intent.putExtra("key", "register")
-        startService(intent)
-    }
+    private inner class RecyclerViewBenOnGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-    private fun checkPlayServices(): Boolean {
-        val apiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode = apiAvailability.isGooglePlayServicesAvailable(this)
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-                        .show()
-            } else {
-                Log.i("iiiiii", "This device is not supported. Google Play Services not installed!")
-                Toast.makeText(applicationContext, "This device is not supported. Google Play Services not installed!", Toast.LENGTH_LONG).show()
-                finish()
-            }
-            return false
+        override fun onLongPress(e: MotionEvent) {
+
+
         }
-        return true
+
     }
-
-
 
 }
 

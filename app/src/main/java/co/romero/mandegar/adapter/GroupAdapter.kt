@@ -19,7 +19,7 @@ import android.R.attr.data
 
 
 
-class GroupAdapter(private val mContext: Context?, private val items: MutableList<ChatRoom>) : RecyclerView.Adapter<GroupAdapter.CustomViewHolder>() {
+class GroupAdapter(private val mContext: Context?, private var items: MutableList<ChatRoom>) : RecyclerView.Adapter<GroupAdapter.CustomViewHolder>() {
 
 
     private lateinit var onItemClickListener: OnItemClickListener
@@ -48,6 +48,10 @@ class GroupAdapter(private val mContext: Context?, private val items: MutableLis
 
     }
 
+    fun setConversations(conversationsModelList: MutableList<ChatRoom>) {
+        this.items = conversationsModelList
+        notifyDataSetChanged()
+    }
     @SuppressWarnings("deprecation")
     fun fromHtml(html: String): Spanned {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

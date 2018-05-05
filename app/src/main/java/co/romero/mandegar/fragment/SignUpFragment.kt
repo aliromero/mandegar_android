@@ -1,8 +1,10 @@
 package co.romero.mandegar.fragment
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -25,16 +27,26 @@ import kotlinx.android.synthetic.main.fragment_enter_name.view.*
 import kotlinx.android.synthetic.main.loading.*
 import java.util.regex.Pattern
 import android.os.CountDownTimer
+import android.preference.PreferenceManager
 import kotlinx.android.synthetic.main.fragment_enter_email.view.*
 import android.telephony.TelephonyManager
 import kotlinx.android.synthetic.main.fragment_enter_code.*
 import java.util.*
 import android.provider.MediaStore
+import android.support.v4.content.LocalBroadcastManager
 import kotlinx.android.synthetic.main.fragment_enter_password.view.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import android.util.Log
+import android.widget.Toast
 import co.romero.mandegar.activity.GroupsActivity
+import co.romero.mandegar.app.Config
+import co.romero.mandegar.gcm.GcmIntentService
 import com.bumptech.glide.Glide
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.gcm.GoogleCloudMessaging
+import com.google.android.gms.iid.InstanceID
 import com.theartofdev.edmodo.cropper.CropImage
 import java.io.IOException
 
@@ -46,7 +58,8 @@ class SignUpFragment : Fragment() {
     private var type: String? = null
     private var utils: Utils? = null
     private var endPoints: EndPoints? = null
-
+    private val PLAY_SERVICES_RESOLUTION_REQUEST = 9000
+    private lateinit var  mRegistrationBroadcastReceiver : BroadcastReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -56,6 +69,29 @@ class SignUpFragment : Fragment() {
             utils = Utils.getInstance(context)
             endPoints = EndPoints.getInstance(context)
 
+
+
+            mRegistrationBroadcastReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+
+                    // checking for type intent filter
+                    when {
+                        intent.action == Config.REGISTRATION_COMPLETE -> {
+                            // gcm successfully registered
+                            // now subscribe to `global` topic to receive app wide notifications
+                            view!!.btn_next0!!.isEnabled = true
+
+                        }
+                        intent.action == Config.SENT_TOKEN_TO_SERVER -> {
+                            // gcm registration id is stored in our server's MySQL
+                            view!!.btn_next0!!.isEnabled = true
+
+
+                        }
+
+                    }
+                }
+            }
 
         }
     }
@@ -207,6 +243,11 @@ class SignUpFragment : Fragment() {
 
     private fun showEnterEmail(view: View) {
 
+        if (checkPlayServices()) {
+            registerGCM()
+        }
+
+        view.btn_next0?.isEnabled = false
         view.et_email.background.mutate().setColorFilter(resources.getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP)
 
         val main = activity as SignUpActivity
@@ -274,7 +315,7 @@ class SignUpFragment : Fragment() {
 
         view.tv_forget.setOnClickListener {
             pb_loading.visibility = View.VISIBLE
-            endPoints!!.resetPass(utils!!.get_email(),object: RespoDataInterface {
+            endPoints!!.resetPass(utils!!.get_email(), object : RespoDataInterface {
 
                 override fun data(response: Respo) {
                     pb_loading.visibility = View.GONE
@@ -299,15 +340,15 @@ class SignUpFragment : Fragment() {
             })
         }
         var is_show = false
-        view.btn_eye.setImageResource( R.drawable.ic_visibility_black_24dp)
+        view.btn_eye.setImageResource(R.drawable.ic_visibility_black_24dp)
         view.btn_eye.setOnClickListener {
             if (!is_show) {
-                view.btn_eye.setImageResource( R.drawable.ic_visibility_off_black_24dp)
+                view.btn_eye.setImageResource(R.drawable.ic_visibility_off_black_24dp)
                 view.et_password.transformationMethod = HideReturnsTransformationMethod.getInstance()
                 is_show = true
 
             } else {
-                view.btn_eye.setImageResource( R.drawable.ic_visibility_black_24dp)
+                view.btn_eye.setImageResource(R.drawable.ic_visibility_black_24dp)
                 view.et_password.transformationMethod = PasswordTransformationMethod.getInstance()
                 is_show = false
 
@@ -316,16 +357,13 @@ class SignUpFragment : Fragment() {
         }
 
 
-
-
-
         val main = activity as SignUpActivity
         view.btn_next03.setOnClickListener {
             pb_loading.visibility = View.VISIBLE
 
             if (view.et_password.length() > 3) {
 
-                endPoints!!.checkPass(utils!!.get_email(),view.et_password.text.toString(),utils!!.getRegId(),utils!!.getCustomerId(),object: RespoDataInterface {
+                endPoints!!.checkPass(utils!!.get_email(), view.et_password.text.toString(), utils!!.getRegId(), utils!!.getCustomerId(), object : RespoDataInterface {
                     override fun data(response: Respo) {
                         pb_loading.visibility = View.GONE
                         if (response.isStatus) {
@@ -444,14 +482,14 @@ class SignUpFragment : Fragment() {
         val main = activity as SignUpActivity
         view.btn_next3.setOnClickListener {
 
-            endPoints!!.checkName(view.et_name.text.toString(),utils!!.getCustomerId(),object: RespoDataInterface {
+            endPoints!!.checkName(view.et_name.text.toString(), utils!!.getCustomerId(), object : RespoDataInterface {
                 override fun data(response: Respo) {
                     pb_loading.visibility = View.GONE
                     if (response.isStatus) {
                         hideKeyboard(activity!!)
 
                         when {
-                            response.customer.profiles.size == 0  -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
+                            response.customer.profiles.size == 0 -> main.displayFragment(main.getFragment(main.enterImageFragment, "index", "none", "enter_image", "2"), "مرحله 4/4 - انتخاب تصویر ")
                             else -> {
                                 startActivity(Intent(context, GroupsActivity::class.java))
                                 activity!!.finish()
@@ -579,7 +617,7 @@ class SignUpFragment : Fragment() {
             }
             1001 -> if (null != data) {
                 val uri = data.data
-                CropImage.activity(uri).setAspectRatio(1,1)
+                CropImage.activity(uri).setAspectRatio(1, 1)
                         .start(context!!, this)
 
             }
@@ -587,6 +625,49 @@ class SignUpFragment : Fragment() {
             }
         }
     }
+
+
+    private fun checkPlayServices(): Boolean {
+        val apiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode = apiAvailability.isGooglePlayServicesAvailable(context)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show()
+            } else {
+                Log.i("iiiiii", "This device is not supported. Google Play Services not installed!")
+                Toast.makeText(context, "This device is not supported. Google Play Services not installed!", Toast.LENGTH_LONG).show()
+                activity!!.finish()
+            }
+            return false
+        }
+        return true
+    }
+
+    private fun registerGCM() {
+        val intent = Intent(context, GcmIntentService::class.java)
+        intent.putExtra("key", "register")
+        activity!!.startService(intent)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+
+        // register GCM registration complete receiver
+        LocalBroadcastManager.getInstance(context!!).registerReceiver(mRegistrationBroadcastReceiver,
+                 IntentFilter(Config.SENT_TOKEN_TO_SERVER))
+
+        LocalBroadcastManager.getInstance(context!!).registerReceiver(mRegistrationBroadcastReceiver,
+                IntentFilter(Config.REGISTRATION_COMPLETE))
+
+
+    }
+    override fun onPause() {
+        LocalBroadcastManager.getInstance(context!!).unregisterReceiver(mRegistrationBroadcastReceiver)
+        super.onPause()
+    }
+
 
 
 

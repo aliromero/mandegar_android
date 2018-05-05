@@ -4,18 +4,21 @@ import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.multidex.MultiDex;
+import android.util.Log;
 
-import com.facebook.stetho.InspectorModulesProvider;
 import com.facebook.stetho.Stetho;
-import com.facebook.stetho.inspector.protocol.ChromeDevtoolsDomain;
 import com.orm.SugarContext;
 
-public class App extends com.orm.SugarApp {
+import co.romero.mandegar.Util.Utils;
+
+public class App extends Application {
     private static App mInstance;
 
     public static synchronized App getInstance() {
         return mInstance;
     }
+
 
 
     @Override
@@ -31,8 +34,8 @@ public class App extends com.orm.SugarApp {
 
 
 
-
     }
+
 
 
     public boolean isDataConnected() {
@@ -53,4 +56,17 @@ public class App extends com.orm.SugarApp {
         SugarContext.terminate();
         super.onTerminate();
     }
+
+
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        SugarContext.init(this);
+
+        MultiDex.install(this);
+    }
+
+
+
 }

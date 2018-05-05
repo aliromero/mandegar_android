@@ -52,11 +52,12 @@ class MyGcmPushReceiver : GcmListenerService() {
      */
 
     override fun onMessageReceived(from: String?, bundle: Bundle?) {
-        Log.i("iiiii","ddd2d")
+
         val title = bundle!!.getString("title")
         val isBackground = java.lang.Boolean.valueOf(bundle.getString("is_background"))
         val flag = bundle.getString("flag")
         val data = bundle.getString("data")
+        Log.i("iiiii",data)
         Log.d(TAG, "From: " + from!!)
         Log.d(TAG, "title: " + title!!)
         Log.d(TAG, "isBackground: $isBackground")
@@ -237,6 +238,6 @@ class MyGcmPushReceiver : GcmListenerService() {
 
     companion object {
 
-        private val TAG = MyGcmPushReceiver::class.java.simpleName
+        private val TAG = "AliRomero"
     }
 }
